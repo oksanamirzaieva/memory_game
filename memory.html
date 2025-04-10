@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 150px);
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .card {
+            width: 150px;
+            height: 150px;
+            background-color: green;
+            color: transparent;
+            border: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .card.open {
+            background-color: red;
+            color: white;
+        }
+
+        .card.matched {
+            background-color: yellowgreen;
+            color: white;
+        }
+
+        #start-btn {
+            padding: 10px 20px;
+            font-size: 1.5rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        #start-btn:hover {
+            background-color: #45a049;
+        }
+
+        #victory {
+            display: none;
+            font-size: 2rem;
+            color: green;
+            margin-top: 20px;
+            animation: victoryAnimation 2s ease-out;
+        }
+
+        @keyframes victoryAnimation {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Memory Game</h1>
+    <button id="start-btn">Start</button>
+    <div id="victory">Victory!</div>
+    <div class="game-board" id="game-board"></div>
+
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        const gameBoard = document.getElementById('game-board');
+        const victoryMessage = document.getElementById('victory');
+        let cards = [];
+        let flippedCards = [];
+        let matchedCards = [];
+
+        const cardValues = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+        cardValues.sort(() => Math.random() - 0.5);
+
+        function createBoard() {
+            cards = [];
+            flippedCards = [];
+            matchedCards = [];
+            victoryMessage.style.display = 'none';
+
+            gameBoard.innerHTML = '';
+
+            for (let i = 0; i < cardValues.length; i++) {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.setAttribute('data-value', cardValues[i]);
+                card.addEventListener('click', flipCard);
+                gameBoard.appendChild(card);
+                cards.push(card);
+            }
+        }
+
+        function flipCard(event) {
+            const clickedCard = event.target;
+            if (flippedCards.length < 2 && !clickedCard.classList.contains('open') && !clickedCard.classList.contains('matched')) {
+                clickedCard.classList.add('open');
+                clickedCard.textContent = clickedCard.getAttribute('data-value');
+                flippedCards.push(clickedCard);
+
+                if (flippedCards.length === 2) {
+                    checkMatch();
+                }
+            }
+        }
+
+        function checkMatch() {
+            if (flippedCards[0].getAttribute('data-value') === flippedCards[1].getAttribute('data-value')) {
+                flippedCards[0].classList.add('matched');
+                flippedCards[1].classList.add('matched');
+                matchedCards.push(flippedCards[0], flippedCards[1]);
+                flippedCards = [];
+
+                if (matchedCards.length === cards.length) {
+                    setTimeout(() => {
+                        victoryMessage.style.display = 'block';
+                    }, 500);
+                }
+            } else {
+                setTimeout(() => {
+                    flippedCards[0].classList.remove('open');
+                    flippedCards[1].classList.remove('open');
+                    flippedCards[0].textContent = '';
+                    flippedCards[1].textContent = '';
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+
+        startBtn.addEventListener('click', () => {
+            createBoard();
+        });
+    </script>
+</body>
+</html>
